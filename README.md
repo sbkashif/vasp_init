@@ -1,6 +1,11 @@
 # vasp_init
 
-Utilities to merge ions and molecules into VASP POSCARs. Designed to bridge RASPA outputs (PDB) and VASP inputs.
+Utilities to merge ions and molecules into the `Framework` files from RASPA. The starting file will be the framework file written out in the `vasp` format from a RASPA simulatins. Then, the molecule and ions may be added to it which are generally written out in PDB format by RASPA.
+
+Terminology for the purpose of this package:
+ - **Framework**: Something like Zeolite or MOF or a membrane
+ - **Ions**: Typically added to neutralize the framework and are needed at the same precise locations in VASP input as in the last frame of GCMC simulation in RASPA.
+ - **Molecules**: Typically the system needed to be studied for interaction with the `Framework`. If a loaded (with molecules) zeolite needs to be simulated, then ion script may be called to insert the molecules in POSCAR format. If it about studying the interaction of molecule at a specific position in the framework, there is a specific module to do that. 
 
 ## Features
 - Robust POSCAR reader/writer (Direct/Cartesian, Selective dynamics)
@@ -78,9 +83,13 @@ wf.add_ammonia_between(
     place='midpoint',
 )
 ```
+## Units and conventions
+- POSCAR symbols line is preserved if present; if missing, counts are updated but symbols remain omitted.
+- Coordinates in PDB and .def are treated as Cartesian Å.
+- Wrapping places added atoms within the primary cell by default; disable with `--no-wrap`.
 
 ## Notes
-## Repo layout and packaging
+### Repo layout and packaging
 
 Project layout (PEP 517/518 with `pyproject.toml`):
 - `vasp_init/` – package source (geometry/io/molecules/workflow/cli)
@@ -89,27 +98,7 @@ Project layout (PEP 517/518 with `pyproject.toml`):
 - `pyproject.toml` – build metadata, entry points, dependencies
 - `LICENSE`, `README.md`
 
-Push to GitHub:
-1. Create a new repository on GitHub (e.g., `salmanbinkashif/vasp_init`).
-2. Initialize locally and push:
-  ```zsh
-  cd vasp_init
-  git init
-  git add .
-  git commit -m "feat: initial release of vasp_init"
-  git branch -M main
-  git remote add origin git@github.com:<your-username>/vasp_init.git
-  git push -u origin main
-  ```
-3. GitHub Actions (`.github/workflows/ci.yml`) will run tests on push/PR.
-
-Optional publishing to PyPI:
-```zsh
-python -m pip install build twine
-python -m build           # creates dist/
-python -m twine upload dist/*
-```
-Then users can `pip install vasp_init`.
+GitHub Actions (`.github/workflows/ci.yml`) will run tests on push/PR.
 
 ## Running tests locally
 ```zsh
@@ -117,6 +106,4 @@ pip install -e .
 pip install pytest
 pytest -q
 ```
-- POSCAR symbols line is preserved if present; if missing, counts are updated but symbols remain omitted.
-- Coordinates in PDB and .def are treated as Cartesian Å.
-- Wrapping places added atoms within the primary cell by default; disable with `--no-wrap`.
+
