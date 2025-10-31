@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=64.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vasp_init"
+version = "0.1.0"
+description = "Utilities to merge ions/molecules into VASP POSCARs (RASPA -> VASP)"
+authors = [{ name = "salmanbinkashif" }]
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+
+[project.scripts]
+vasp_init_add_ions = "vasp_init.cli:main_add_ions"
+vasp_init_add_nh3 = "vasp_init.cli:main_add_nh3"
+
+[tool.setuptools.packages.find]
+where = ["."]
