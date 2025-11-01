@@ -1,15 +1,21 @@
-import os
-import sys
+"""Tests for adding NH3 to a POSCAR.
 
-ROOT = os.path.dirname(os.path.dirname(__file__))
-SRC = os.path.join(ROOT, 'src')
-sys.path.insert(0, SRC)
+Assumes package is installed (e.g., `pip install -e .`) and tests are
+run from the repository root with `pytest`.
+"""
 
 from vasp_init.io import read_poscar
 from vasp_init.molecules import add_ammonia_to_poscar
 
 
 def make_min_poscar(path):
+    """make_min_poscar
+    
+    Create a minimal POSCAR file for testing.
+    
+    Args:
+        path (str): Path to write the POSCAR file.
+    """
     lines = [
         "# test cell",
         "1.0",

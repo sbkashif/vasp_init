@@ -1,14 +1,10 @@
-import os
-import sys
-import math
-import tempfile
+"""Tests for POSCAR IO utilities.
 
-# Ensure src is importable
-ROOT = os.path.dirname(os.path.dirname(__file__))
-SRC = os.path.join(ROOT, 'src')
-sys.path.insert(0, SRC)
+Assumes package is installed (e.g., `pip install -e .`) and tests are
+run from the repository root with `pytest`.
+"""
 
-from vasp_init.io import Poscar, read_poscar, write_poscar, merge_ions_into_poscar, PdbAtom
+from vasp_init.io import read_poscar, write_poscar, merge_ions_into_poscar, PdbAtom
 
 
 def make_min_poscar(path, coord_type='Direct'):
