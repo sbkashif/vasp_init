@@ -257,7 +257,20 @@ def read_pdb_last_frame(path: str, model_index: int = -1) -> List[PdbAtom]:
 
 
 def merge_ions_into_poscar(p: Poscar, ions: List[PdbAtom], wrap: bool = True,
-                           ion_flags: Optional[Tuple[bool,bool,bool]] = None) -> Poscar:
+                           ion_flags: Optional[Tuple[bool,bool,bool]] = None,
+                           framework_flags: Optional[Tuple[bool,bool,bool]] = None) -> Poscar:
+    """Merge ions into a POSCAR.
+    
+    Args:
+        p: Input POSCAR
+        ions: List of ion atoms to add
+        wrap: Whether to wrap fractional coordinates to [0,1)
+        ion_flags: Selective dynamics flags for added ions (enables selective dynamics if provided)
+        framework_flags: Selective dynamics flags for existing framework atoms (enables selective dynamics if provided)
+    
+    Returns:
+        New POSCAR with ions merged
+    """
     if not ions:
         return p
 
@@ -313,8 +326,20 @@ def merge_ions_into_poscar(p: Poscar, ions: List[PdbAtom], wrap: bool = True,
     for _, coords_list in ordering:
         new_frac.extend(coords_list)
 
-    if p.has_selective:
-        new_flags = list(p.flags) if p.flags is not None else [(True, True, True)] * len(p.frac_coords)
+    # Determine if we need selective dynamics
+    enable_selective = p.has_selective or ion_flags is not None or framework_flags is not None
+    
+    if enable_selective:
+        # Build flags for framework atoms
+        # If framework_flags specified, it overrides any existing flags
+        if framework_flags is not None:
+            new_flags = [framework_flags] * len(p.frac_coords)
+        elif p.has_selective and p.flags is not None:
+            new_flags = list(p.flags)
+        else:
+            new_flags = [(True, True, True)] * len(p.frac_coords)
+        
+        # Add flags for ions
         fl = ion_flags if ion_flags is not None else (True, True, True)
         for _ in range(len(new_frac) - len(new_flags)):
             new_flags.append(fl)
@@ -327,7 +352,7 @@ def merge_ions_into_poscar(p: Poscar, ions: List[PdbAtom], wrap: bool = True,
     out.lattice = [row[:] for row in p.lattice]
     out.symbols = new_symbols
     out.counts = new_counts
-    out.has_selective = p.has_selective
+    out.has_selective = enable_selective
     out.coord_type = p.coord_type
     out.frac_coords = new_frac
     out.flags = new_flags

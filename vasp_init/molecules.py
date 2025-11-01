@@ -51,6 +51,7 @@ def add_ammonia_to_poscar(p: Poscar,
                            place: str = 'midpoint',
                            wrap: bool = True,
                            flags: Optional[Tuple[bool, bool, bool]] = None,
+                           framework_flags: Optional[Tuple[bool, bool, bool]] = None,
                            offset_from_midpoint: float = 0.0,
                            offset_direction: str = '+') -> Poscar:
     """Add an NH3 molecule to a POSCAR, positioning the N atom and adding rigid Hs.
@@ -59,7 +60,8 @@ def add_ammonia_to_poscar(p: Poscar,
     - coord1_cart/coord2_cart: two Cartesian coordinates in Å. The N position is
       chosen at midpoint/first/second based on 'place'.
     - wrap: wrap fractional coords to [0,1).
-    - flags: selective dynamics flags for added atoms when POSCAR uses them.
+    - flags: selective dynamics flags for added NH3 atoms (enables selective dynamics if provided).
+    - framework_flags: selective dynamics flags for existing framework atoms (enables selective dynamics if provided).
 
     Returns a new Poscar instance with atoms appended and counts updated.
     """
@@ -152,9 +154,21 @@ def add_ammonia_to_poscar(p: Poscar,
         # No symbols: append in input order
         new_frac.extend(add_frac)
 
+    # Determine if we need selective dynamics
+    enable_selective = p.has_selective or flags is not None or framework_flags is not None
+    
     # Flags
-    if p.has_selective:
-        new_flags = list(p.flags) if p.flags is not None else [(True, True, True)] * len(p.frac_coords)
+    if enable_selective:
+        # Build flags for framework atoms
+        # If framework_flags specified, it overrides any existing flags
+        if framework_flags is not None:
+            new_flags = [framework_flags] * len(p.frac_coords)
+        elif p.has_selective and p.flags is not None:
+            new_flags = list(p.flags)
+        else:
+            new_flags = [(True, True, True)] * len(p.frac_coords)
+        
+        # Add flags for NH3 atoms
         fl = flags if flags is not None else (True, True, True)
         for _ in range(len(new_frac) - len(new_flags)):
             new_flags.append(fl)
@@ -168,7 +182,7 @@ def add_ammonia_to_poscar(p: Poscar,
     out.lattice = [row[:] for row in p.lattice]
     out.symbols = new_symbols
     out.counts = new_counts
-    out.has_selective = p.has_selective
+    out.has_selective = enable_selective
     out.coord_type = p.coord_type
     out.frac_coords = new_frac
     out.flags = new_flags

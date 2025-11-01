@@ -15,11 +15,12 @@ class VaspWorkflow:
                           out_path: str,
                           model_index: int = -1,
                           ion_flags: Optional[Tuple[bool, bool, bool]] = None,
+                          framework_flags: Optional[Tuple[bool, bool, bool]] = None,
                           wrap: bool = True,
                           out_coords: Optional[str] = None) -> str:
         p = read_poscar(poscar_path)
         ions = read_pdb_last_frame(pdb_path, model_index=model_index)
-        merged = merge_ions_into_poscar(p, ions, wrap=wrap, ion_flags=ion_flags)
+        merged = merge_ions_into_poscar(p, ions, wrap=wrap, ion_flags=ion_flags, framework_flags=framework_flags)
         write_poscar(merged, out_path, out_coord_type=out_coords)
         return out_path
 
@@ -31,6 +32,7 @@ class VaspWorkflow:
                             x2: float, y2: float, z2: float,
                             place: str = 'midpoint',
                             flags: Optional[Tuple[bool, bool, bool]] = None,
+                            framework_flags: Optional[Tuple[bool, bool, bool]] = None,
                             wrap: bool = True,
                             out_coords: Optional[str] = None,
                             offset_from_midpoint: float = 0.0,
@@ -39,6 +41,7 @@ class VaspWorkflow:
         p2: Poscar = add_ammonia_to_poscar(
             p, def_path, (x1, y1, z1), (x2, y2, z2),
             place=place, wrap=wrap, flags=flags,
+            framework_flags=framework_flags,
             offset_from_midpoint=offset_from_midpoint,
             offset_direction=offset_direction,
         )

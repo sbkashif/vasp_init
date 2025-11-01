@@ -13,7 +13,8 @@ def main_add_ions():
     ap.add_argument('--pdb', required=True, help='Input PDB file with ions (from RASPA)')
     ap.add_argument('--out', required=True, help='Output POSCAR path')
     ap.add_argument('--model-index', type=int, default=-1, help='MODEL index in PDB (default: -1 last)')
-    ap.add_argument('--ion-flags', default=None, help="Selective-dynamics flags for ions if POSCAR uses them: e.g., 'TTT' or 'FFF'")
+    ap.add_argument('--ion-flags', default=None, help="Selective-dynamics flags for ions: e.g., 'TTT' or 'FFF'")
+    ap.add_argument('--framework-flags', default=None, help="Selective-dynamics flags for framework atoms: e.g., 'FFF' to fix framework")
     ap.add_argument('--no-wrap', action='store_true', help='Do not wrap ions into the primary cell (default wraps)')
     ap.add_argument('--out-coords', choices=['Direct', 'Cartesian'], default=None, help='Force output coordinate type (default: same as POSCAR)')
 
@@ -28,12 +29,20 @@ def main_add_ions():
             raise ValueError("--ion-flags must be a 3-char combo of T/F like TTT or FFF")
         ion_flags = (s[0]=='T', s[1]=='T', s[2]=='T')
 
+    framework_flags = None
+    if args.framework_flags is not None:
+        s = args.framework_flags.strip().upper()
+        if len(s) != 3 or any(ch not in 'TF' for ch in s):
+            raise ValueError("--framework-flags must be a 3-char combo of T/F like TTT or FFF")
+        framework_flags = (s[0]=='T', s[1]=='T', s[2]=='T')
+
     wf.add_ions_from_pdb(
         poscar_path=args.poscar,
         pdb_path=args.pdb,
         out_path=args.out,
         model_index=args.model_index,
         ion_flags=ion_flags,
+        framework_flags=framework_flags,
         wrap=(not args.no_wrap),
         out_coords=args.out_coords,
     )
@@ -63,7 +72,8 @@ def main_add_nh3():
     ap.add_argument('--place', choices=['midpoint', 'first', 'second'], default='midpoint')
     ap.add_argument('--offset', type=float, default=0.0, help='Distance in Å to move from the midpoint along the line (only for place=midpoint)')
     ap.add_argument('--dir', dest='direction', choices=['+','-','plus','minus'], default='+', help='Direction from midpoint along the line ("+" toward idx2/x2, "-" toward idx1/x1)')
-    ap.add_argument('--flags', default=None, help="Selective-dynamics flags for added atoms if POSCAR uses them: e.g., 'TTT' or 'FFF'")
+    ap.add_argument('--flags', default=None, help="Selective-dynamics flags for added NH3 atoms: e.g., 'TTT' or 'FFF'")
+    ap.add_argument('--framework-flags', default=None, help="Selective-dynamics flags for framework atoms: e.g., 'FFF' to fix framework")
     ap.add_argument('--no-wrap', action='store_true', help='Do not wrap molecule into the primary cell (default wraps)')
     ap.add_argument('--out-coords', choices=['Direct', 'Cartesian'], default=None, help='Force output coordinate type (default: same as POSCAR)')
 
@@ -77,6 +87,13 @@ def main_add_nh3():
         if len(s) != 3 or any(ch not in 'TF' for ch in s):
             raise ValueError("--flags must be a 3-char combo of T/F like TTT or FFF")
         flags = (s[0]=='T', s[1]=='T', s[2]=='T')
+
+    framework_flags = None
+    if args.framework_flags is not None:
+        s = args.framework_flags.strip().upper()
+        if len(s) != 3 or any(ch not in 'TF' for ch in s):
+            raise ValueError("--framework-flags must be a 3-char combo of T/F like TTT or FFF")
+        framework_flags = (s[0]=='T', s[1]=='T', s[2]=='T')
 
     # Determine coordinates: either from indices or explicit xyz
     if args.idx1 is not None and args.idx2 is not None:
@@ -105,6 +122,7 @@ def main_add_nh3():
         x2=x2, y2=y2, z2=z2,
         place=args.place,
         flags=flags,
+        framework_flags=framework_flags,
         wrap=(not args.no_wrap),
         out_coords=args.out_coords,
         offset_from_midpoint=args.offset,
