@@ -53,7 +53,10 @@ def add_ammonia_to_poscar(p: Poscar,
                            flags: Optional[Tuple[bool, bool, bool]] = None,
                            framework_flags: Optional[Tuple[bool, bool, bool]] = None,
                            offset_from_midpoint: float = 0.0,
-                           offset_direction: str = '+') -> Poscar:
+                           offset_direction: str = '+',
+                           offset_x: float = 0.0,
+                           offset_y: float = 0.0,
+                           offset_z: float = 0.0) -> Poscar:
     """Add an NH3 molecule to a POSCAR, positioning the N atom and adding rigid Hs.
 
     - def_path: TraPPE .def file describing NH3 geometry (Å), with atoms N_*, H_*.
@@ -98,10 +101,20 @@ def add_ammonia_to_poscar(p: Poscar,
             cz = mz + sign * offset_from_midpoint * uz
         else:
             cx, cy, cz = mx, my, mz
+        # Apply custom offsets along axes
+        cx += offset_x
+        cy += offset_y
+        cz += offset_z
     elif place == 'first':
         cx, cy, cz = coord1_cart
+        cx += offset_x
+        cy += offset_y
+        cz += offset_z
     elif place == 'second':
         cx, cy, cz = coord2_cart
+        cx += offset_x
+        cy += offset_y
+        cz += offset_z
     else:
         raise ValueError("place must be one of: midpoint, first, second")
 
