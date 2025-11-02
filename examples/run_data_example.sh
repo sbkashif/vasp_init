@@ -38,15 +38,13 @@ X2=6.2220
 Y2=9.8465
 Z2=0.0000
 PLACE=midpoint   # midpoint|first|second
-OFFSET_FROM_MIDPOINT=$((12.277/2.0))  # Ångström offset from midpoint (zsh arithmetic expansion)
-OFFSET_DIRECTION=+        # + (toward point 2), - (toward point 1)
+OFFSET_FROM_MIDPOINT=0.0  # No offset along connecting vector
+OFFSET_DIRECTION=+        # Not used when OFFSET_FROM_MIDPOINT=0
 
-# Example: To use custom axis-aligned offsets (e.g., +1.0 Å in x, -2.0 Å in y, +0.5 Å in z), uncomment and set:
-# OFFSET_X=1.0
-# OFFSET_Y=-2.0
-# OFFSET_Z=0.5
-# and add these to the python command below:
-#   --offset-x "${OFFSET_X}" --offset-y "${OFFSET_Y}" --offset-z "${OFFSET_Z}"
+# Using custom axis-aligned offsets to place NH3 at z = half cell height
+OFFSET_X=0.0
+OFFSET_Y=0.0
+OFFSET_Z=$((12.2777 / 2))  # Place at half the cell length in z (6.13885 Å)
 
 # Optional: selective dynamics flags
 ION_FLAGS=${ION_FLAGS:-TTT}     # e.g., TTT, FFT, TFT
@@ -84,10 +82,11 @@ PYTHON_NH3_CMD=(
   --offset-direction "${OFFSET_DIRECTION}"
   --flags "${NH3_FLAGS}"
   $( (( NO_WRAP_NH3 == 1 )) && echo "--no-wrap" )
+  --offset-x "${OFFSET_X}"
+  --offset-y "${OFFSET_Y}"
+  --offset-z "${OFFSET_Z}"
   --out "${OUT_FINAL}"
 )
-# Uncomment the next lines to use custom axis-aligned offsets:
-# PYTHON_NH3_CMD+=(--offset-x "${OFFSET_X}" --offset-y "${OFFSET_Y}" --offset-z "${OFFSET_Z}")
 
 "${PYTHON_NH3_CMD[@]}"
 
