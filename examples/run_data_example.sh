@@ -27,6 +27,7 @@ DEF_IN="${DATA_DIR}/NH3_TraPPE.def"
 OUT_IONS="${DATA_DIR}/POSCAR_with_ions.vasp"
 OUT_FINAL="${DATA_DIR}/POSCAR_with_ions_NH3.vasp"
 
+
 # Demo Cartesian points for placing NH3 (Å)
 # Adjust if you need a different location
 # Example: Place NH3 at the midpoint plus 1.5 Å offset in the C direction (from point 1 to point 2)
@@ -39,6 +40,13 @@ Z2=0.0000
 PLACE=midpoint   # midpoint|first|second
 OFFSET_FROM_MIDPOINT=$((12.277/2.0))  # Ångström offset from midpoint (zsh arithmetic expansion)
 OFFSET_DIRECTION=+        # + (toward point 2), - (toward point 1)
+
+# Example: To use custom axis-aligned offsets (e.g., +1.0 Å in x, -2.0 Å in y, +0.5 Å in z), uncomment and set:
+# OFFSET_X=1.0
+# OFFSET_Y=-2.0
+# OFFSET_Z=0.5
+# and add these to the python command below:
+#   --offset-x "${OFFSET_X}" --offset-y "${OFFSET_Y}" --offset-z "${OFFSET_Z}"
 
 # Optional: selective dynamics flags
 ION_FLAGS=${ION_FLAGS:-TTT}     # e.g., TTT, FFT, TFT
@@ -63,18 +71,25 @@ python3 "${ROOT_DIR}/examples/add_ions.py" \
   --framework-flags "${FRAMEWORK_FLAGS}" \
   $( (( NO_WRAP_IONS == 1 )) && echo "--no-wrap" )
 
+
 echo "[2/2] Adding NH3 molecule..."
-python3 "${ROOT_DIR}/examples/add_nh3.py" \
-  --poscar "${OUT_IONS}" \
-  --def "${DEF_IN}" \
-  --x1 "${X1}" --y1 "${Y1}" --z1 "${Z1}" \
-  --x2 "${X2}" --y2 "${Y2}" --z2 "${Z2}" \
-  --place "${PLACE}" \
-  --offset-from-midpoint "${OFFSET_FROM_MIDPOINT}" \
-  --offset-direction "${OFFSET_DIRECTION}" \
-  --flags "${NH3_FLAGS}" \
-  $( (( NO_WRAP_NH3 == 1 )) && echo "--no-wrap" ) \
+PYTHON_NH3_CMD=(
+  python3 "${ROOT_DIR}/examples/add_nh3.py"
+  --poscar "${OUT_IONS}"
+  --def "${DEF_IN}"
+  --x1 "${X1}" --y1 "${Y1}" --z1 "${Z1}"
+  --x2 "${X2}" --y2 "${Y2}" --z2 "${Z2}"
+  --place "${PLACE}"
+  --offset-from-midpoint "${OFFSET_FROM_MIDPOINT}"
+  --offset-direction "${OFFSET_DIRECTION}"
+  --flags "${NH3_FLAGS}"
+  $( (( NO_WRAP_NH3 == 1 )) && echo "--no-wrap" )
   --out "${OUT_FINAL}"
+)
+# Uncomment the next lines to use custom axis-aligned offsets:
+# PYTHON_NH3_CMD+=(--offset-x "${OFFSET_X}" --offset-y "${OFFSET_Y}" --offset-z "${OFFSET_Z}")
+
+"${PYTHON_NH3_CMD[@]}"
 
 echo "Done. Outputs:"
 echo "  Ions merged: ${OUT_IONS}"
