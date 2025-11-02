@@ -44,7 +44,7 @@ OFFSET_DIRECTION=+        # Not used when OFFSET_FROM_MIDPOINT=0
 # Using custom axis-aligned offsets to place NH3 at z = half cell height
 OFFSET_X=0.0
 OFFSET_Y=0.0
-OFFSET_Z=$((12.2777 / 2))  # Place at half the cell length in z (6.13885 Å)
+OFFSET_Z=$((24.555 * 0.75))  # Place at half the cell length in z (6.13885 Å)
 
 # Optional: selective dynamics flags
 ION_FLAGS=${ION_FLAGS:-TTT}     # e.g., TTT, FFT, TFT
