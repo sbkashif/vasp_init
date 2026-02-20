@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import argparse
 
-from .workflow import VaspWorkflow
-from .io import read_poscar
-from .geometry import mat_vec
+from ..workflow import VaspWorkflow
+from ..io import read_poscar
+from ..geometry import mat_vec
 
 
 def main_add_ions():
@@ -48,12 +48,6 @@ def main_add_ions():
     )
     print(f"Wrote updated POSCAR with ions: {args.out}")
 
-
-essages = """
-usage examples:
-  vasp-init-add-ions --poscar POSCAR --pdb ions.pdb --out POSCAR_out
-  vasp-init-add-nh3 --poscar POSCAR --def NH3.def --x1 ... --y1 ... --z1 ... --x2 ... --y2 ... --z2 ... --out POSCAR_out
-"""
 
 def main_add_nh3():
     ap = argparse.ArgumentParser(description="Add an NH3 molecule between two Cartesian coordinates to a POSCAR")

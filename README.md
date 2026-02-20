@@ -11,6 +11,7 @@ Terminology for the purpose of this package:
 - Robust POSCAR reader/writer (Direct/Cartesian, Selective dynamics)
 - Add ions from the last frame of a PDB (wrap into cell, keep symbols/counts)
 - Add NH3 molecule between two Cartesian points with rigid Hs from a TraPPE .def file
+- Add H2 molecule between two Cartesian points with rigid geometry from a TraPPE .def file
 - Central `VaspWorkflow` class + CLI entry points
 
 ## Install
@@ -26,9 +27,10 @@ pip install -U pip setuptools wheel  # Ensure modern versions (pip>=23, setuptoo
 pip install -e .
 ```
 
-This installs the package and two console scripts:
+This installs the package and three console scripts:
 - `vasp_init_add_ions` — merge ions from PDB into POSCAR
 - `vasp_init_add_nh3` — place NH3 molecule between two atoms
+- `vasp_init_add_h2` — place H2 molecule between two atoms
 
 ### From PyPI (once published)
 
@@ -59,6 +61,18 @@ vasp_init_add_nh3 \
 ```
 Options: `--place midpoint|first|second`, `--flags TTT|FFF|...`, `--no-wrap`, `--out-coords`.
 
+Add H2 between two points:
+```zsh
+vasp_init_add_h2 \
+  --poscar path/to/Framework_0_initial.vasp \
+  --def path/to/H2_TraPPE.def \
+  --x1 1.0 --y1 2.0 --z1 3.0 \
+  --x2 8.0 --y2 9.0 --z2 10.0 \
+  --place midpoint \
+  --out path/to/POSCAR_with_H2
+```
+Options: `--place midpoint|first|second`, `--flags TTT|FFF|...`, `--no-wrap`, `--out-coords`.
+
 ## Python API
 
 ```python
@@ -82,6 +96,34 @@ wf.add_ammonia_between(
     x2=8.0,y2=9.0,z2=10.0,
     place='midpoint',
 )
+# Hydrogen
+wf.add_hydrogen_between(
+    poscar_path="Framework_0_initial.vasp", 
+    def_path="H2_TraPPE.def",
+    out_path="POSCAR_with_H2",
+    x1=1.0,y1=2.0,z1=3.0,
+    x2=8.0,y2=9.0,z2=10.0,
+    place='midpoint',
+)
+```
+
+### Direct function usage
+
+```python
+from vasp_init import read_poscar, add_ammonia_to_poscar, add_hydrogen_to_poscar
+
+# Read POSCAR
+p = read_poscar("POSCAR") 
+
+# Add NH3 at midpoint with custom z-offset
+p_nh3 = add_ammonia_to_poscar(p, "NH3_TraPPE.def", 
+                              (2.0, 0.0, 0.0), (8.0, 0.0, 0.0),
+                              place='midpoint', offset_z=3.0)
+
+# Add H2 molecule
+p_h2 = add_hydrogen_to_poscar(p, "H2_TraPPE.def",
+                              (2.0, 0.0, 0.0), (8.0, 0.0, 0.0), 
+                              place='midpoint', offset_z=3.0)
 ```
 ## Units and conventions
 - POSCAR symbols line is preserved if present; if missing, counts are updated but symbols remain omitted.

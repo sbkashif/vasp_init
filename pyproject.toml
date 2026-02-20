@@ -19,6 +19,7 @@ classifiers = [
 [project.scripts]
 vasp_init_add_ions = "vasp_init.cli:main_add_ions"
 vasp_init_add_nh3 = "vasp_init.cli:main_add_nh3"
+vasp_init_add_h2 = "vasp_init.cli:main_add_h2"
 
 [tool.setuptools.packages.find]
 where = ["."]
