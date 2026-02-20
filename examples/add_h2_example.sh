@@ -5,10 +5,10 @@
 DATA_DIR="../data"
 POSCAR_FILE="${DATA_DIR}/Framework_0_initial.vasp"
 H2_DEF_FILE="${DATA_DIR}/H2_TraPPE.def"
-OUTPUT_DIR="../output_h2"
 
-# Create output directory
-mkdir -p "${OUTPUT_DIR}"
+# Output files (in data directory, following NH3 example pattern)
+OUT_H2="${DATA_DIR}/POSCAR_with_H2.vasp"
+OUT_H2_OFFSET="${DATA_DIR}/POSCAR_with_H2_offset.vasp"
 
 # H2 placement parameters
 X1=2.0
@@ -27,10 +27,10 @@ python -m vasp_init.cli.add_h2 \
     --x1 "${X1}" --y1 "${Y1}" --z1 "${Z1}" \
     --x2 "${X2}" --y2 "${Y2}" --z2 "${Z2}" \
     --place midpoint \
-    --out "${OUTPUT_DIR}/POSCAR_with_H2"
+    --out "${OUT_H2}"
 
 echo "H2 molecule added successfully!"
-echo "Output file: ${OUTPUT_DIR}/POSCAR_with_H2"
+echo "Output file: ${OUT_H2}"
 
 # Optional: Add H2 with custom offset
 echo ""
@@ -43,7 +43,7 @@ python -m vasp_init.cli.add_h2 \
     --x2 "${X2}" --y2 "${Y2}" --z2 "${Z2}" \
     --place midpoint \
     --offset-z 3.0 \
-    --out "${OUTPUT_DIR}/POSCAR_with_H2_offset"
+    --out "${OUT_H2_OFFSET}"
 
 echo "H2 molecule with offset added successfully!"
-echo "Output file: ${OUTPUT_DIR}/POSCAR_with_H2_offset"
+echo "Output file: ${OUT_H2_OFFSET}"
